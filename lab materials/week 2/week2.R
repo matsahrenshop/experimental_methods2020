@@ -72,6 +72,53 @@ dispdist(distout, ate)
 
 omni.ate(Y, Z, perms)$conf.int
 
+## other simulation alternative:
+
+N <- 50
+m <- 25
+
+d <- ifelse(1:N %in% sample(1:N, m), 1, 0)
+Y0 <- runif(N, 0, 1)
+Y1 <- Y0 + rnorm(N, 2, 2)
+Y <- Y1*d + Y0*(1-d)
+
+cbind(Y0, Y1, d, Y)	# look at your data
+
+## Conduct analysis of actual experiment
+## Estimate the ATE
+
+# nonparametric
+mean(Y[d == 1]) - mean(Y[d == 0])
+
+# or fitting data to ols
+lm(Y ~ d)
+
+Z <- d
+probs <- genprobexact(Z)
+ate <- estate(Y, Z, prob = probs)
+  
+perms <- genperms(Z, maxiter = 10000)
+
+# Create potential outcomes UNDER THE SHARP NULL OF NO EFFECT FOR ANY UNIT
+Ys <- genouts(Y, Z, ate = 0)
+  
+# Generate the sampling distribution based on schedule of potential outcome
+# implied by the sharp null hypothesis
+distout <- gendist(Ys, perms, prob = probs)
+  
+sum(distout >= ate)                 # one-tailed comparison used to calculate p-value (greater than)
+sum(abs(distout) >= abs(ate))       # two-tailed comparison used to calculate p-value
+  
+dispdist(distout, ate)               # display p-values, 95% confidence interval, standard error under the null, and graph the sampling distribution under the null
+
+# estimation of confidence intervals assuming ATE=estimated ATE
+
+Ys <- genouts(Y, Z, ate = ate)            # create potential outcomes UNDER THE ASSUMPTION THAT ATE=ESTIMATED ATE
+distout <- gendist(Ys, perms, prob = probs)  # generate the sampling distribution  based on the schedule of potential outcomes implied by the null hypothesis
+dispdist(distout, ate)               # display p-values, 95% confidence interval, standard error under the null, and graph the sampling distribution under the null
+
+
+
 #---- YOUNG 2019 ----
 
 ## experiment data
