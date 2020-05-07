@@ -68,10 +68,6 @@ distout <- gendist(Ys, perms, prob = probs) # generate randomization distributio
 p <- mean(abs(distout) >= abs(ate))
 dispdist(distout, ate)
 
-## now let's also look at confidence intervals
-
-omni.ate(Y, Z, perms)$conf.int
-
 ## other simulation alternative:
 
 N <- 50
