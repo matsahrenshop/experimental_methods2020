@@ -22,15 +22,21 @@ data <- read.csv("kalla20.csv", stringsAsFactors = FALSE)
 ## Different stages of reaching subjects:
 # Baseline survey
 # Contact = coming to the door
-# Giving initial rating conditional on coming to the door
+# Compliance = Giving initial rating conditional on coming to the door
 # Canvass completion rate 
+# First, there are multiple reasonable ways to define compliance in this setting.
+# Subjects ended some of the conversations moments after they identified themselves at the door
+# (and hence are included in our sample); others continued further into the conversation but ended
+# the interaction before it was completed. Compliance in this setting is therefore
+# inherently a continuum, and there is no point in the conversation where subjects
+# go from fully non-compliant to fully compliant.
 
 ## Corresponding variables in the data set
-# responded == 1 -- voters responded to baseline survey
-# treat == {0, 1, 2} -- assignment to placebo, abbreviated, full intervention
+# respondent == 1 -- voters responded to baseline survey
+# treat == {0, 1, 2} -- assignment to placebo, abbreviated, full intervention D
 # treat_full == 1 -- dummy for [treat == 2]
 # canvassed == 1 -- voters came to the door
-# has_first_rating == 1 -- voter responded to initial question of intervention
+# has_first_rating == 1 -- voter responded to initial question of intervention Z
 # tALL_factor_ -- is the pooled outcome index
 
 
@@ -55,7 +61,7 @@ t0.covariate.names <- c('t0_imm_better_worse', 't0_imm_police',
 x <- data[,c(t0.covariate.names)]
 x <- as.matrix(x, dimnames = list(NULL, names(x)))
 
-# Function to compute clustered standard errors, from Mahmood Arai.
+# Function to compute clustered standard errors, from Mahmood Arai
 cl <- function(fm, cluster){
   M <- length(unique(cluster))
   N <- length(cluster)
@@ -194,6 +200,7 @@ make.results.table.ate("factor_overall", "ATE effects on overall index")
 balance.vars <- c('vf_age', 'vf_female', 
                   'vf_latino', 't0_therm_legal_immigrant',
                   't0_therm_illegal_immigrant', 't0_factor_undoc_immigrant')
+
 balance.vars.names <- c("Age", "Female", "Latino", 
                         "Legal Immigrant Feeling Thermometer t0", 
                         "Illegal Immigrant Feeling Thermometer t0", 
@@ -242,10 +249,12 @@ round(mean(subset(data, data$treat == 2)$canvassed, na.rm = TRUE), 2)
 ## compute share of compliers manually 
 
 # Abbreviated Intervention:
-round(mean(subset(data, data$treat == 1 & data$canvassed ==1)$has_first_rating, na.rm = TRUE), 2)
+round(mean(subset(data, data$treat == 1 & data$canvassed == 1)$has_first_rating, na.rm = TRUE), 2)
 
 # Full Intervention:
-round(mean(subset(data, data$treat == 2 & data$canvassed ==1)$has_first_rating, na.rm = TRUE), 2)
+round(mean(subset(data, data$treat == 2 & data$canvassed == 1)$has_first_rating, na.rm = TRUE), 2)
+
+#\pi_C
 
 ## compute share of compliers in regression framework
 
@@ -260,4 +269,23 @@ itt_d_mod <- lm(has_first_rating ~ treat_full + treat_mod,
 
 ## CACE
 round(est.ate(data$tALL_factor_overall, include.covariates = TRUE)[1,1] / itt_d_full, 3)
+
 round(est.ate(data$tALL_factor_overall, include.covariates = TRUE)[2,1] / itt_d_mod, 3)
+
+
+
+
+
+#---- POWER CURVES ----
+
+
+effects <- seq(0.005, 0.05, by = 0.001)
+
+base <- 0.5
+m <- length(effects)
+n <- rep(NA, m)
+for (i in 1:m) {
+  n[i] <- power.prop.test(p1 = base, p2 = base + effects[i],power = 0.5)$n}
+
+plot(effects, n, type = "l")
+
