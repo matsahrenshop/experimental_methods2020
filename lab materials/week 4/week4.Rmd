@@ -13,15 +13,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 1. Ethical research
 - IRB
+- Fraud \& unintentional bias
 
 2. Pre-registration and pre-analysis plans
-- Purpose (specifically power, outcomes, and heterogeneous treatment effects)
-- EGAP
+- Purpose: publication bias \& researcher degrees freedom
+- [EGAP](http://egap.org/design-registrations)
+- [PAP example](https://github.com/mahrenshop/experimental_methods2020/blob/master/lab%20materials/week%204/christensen%20et%20al%20PAP.pdf)
 
 3. Replication and reproducibility
 - Reproducible code
-- R Markdown
-- github
+- Data sharing
+- [R Markdown](https://r4ds.had.co.nz/communicate-intro.html)
+- [github](https://happygitwithr.com/)
 
 # Pre-Analysis Plans
 
@@ -166,5 +169,6 @@ b_c_design
 
 diagnose_design(b_c_design)
 ```
+
 
 
